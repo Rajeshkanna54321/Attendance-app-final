@@ -1,0 +1,6 @@
+{
+  "appId": "com.rajesh.qrattendance",
+  "appName": "QR Attendance",
+  "webDir": "dist",
+  "server": { "androidScheme": "http" }
+}
