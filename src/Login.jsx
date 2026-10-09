@@ -6,12 +6,19 @@ export default function Login({ onLogin }) {
   const [f, setF] = useState({ email: "", otp: "", name: "", roll: "", role: "student" });
   const [isNew, setIsNew] = useState(false);
   const [err, setErr] = useState("");
+  const [errType, setErrType] = useState("error"); // "error" | "device"
   const [busy, setBusy] = useState(false);
   const set = (k) => (e) => setF({ ...f, [k]: e.target.value });
 
   const run = async (fn) => {
     setErr(""); setBusy(true);
-    try { await fn(); } catch (e) { setErr(e.message); }
+    try { await fn(); } catch (e) {
+      // Device binding errors (403) get a special warning style
+      const code = e.data?.code || e.data?.detail?.code;
+      const isDeviceErr = ["account_bound_elsewhere", "device_in_use", "device_cooldown"].includes(code);
+      setErrType(isDeviceErr ? "device" : "error");
+      setErr(e.message);
+    }
     setBusy(false);
   };
 
@@ -28,6 +35,13 @@ export default function Login({ onLogin }) {
     });
     onLogin(d);
   });
+
+  const deviceErrStyle = {
+    background: "#fff3cd", color: "#856404", border: "1px solid #ffc107",
+    borderRadius: "8px", padding: "10px 14px", marginTop: "10px",
+    fontSize: "14px", textAlign: "left", lineHeight: "1.5"
+  };
+  const normalErrStyle = { color: "#e74c3c", marginTop: "8px", fontSize: "14px" };
 
   return (
     <div className="app center">
@@ -57,7 +71,11 @@ export default function Login({ onLogin }) {
           <button className="link" onClick={() => setStep("email")}>Change email</button>
         </>
       )}
-      {err && <p className="error">{err}</p>}
+      {err && (
+        errType === "device"
+          ? <div style={deviceErrStyle}>⚠️ <strong>Device Issue:</strong><br />{err}<br /><small>Contact your teacher or admin to reset your device.</small></div>
+          : <p className="error" style={normalErrStyle}>{err}</p>
+      )}
     </div>
   );
 }
