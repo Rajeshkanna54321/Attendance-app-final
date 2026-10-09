@@ -31,7 +31,7 @@ jobs:
     - name: Build web assets
       run: npm run build
       env:
-        VITE_API_URL: http://10.203.1.87:8000/api
+        VITE_API_URL: http://10.104.67.155:8000/api
 
     - name: Sync Capacitor Android
       run: npx cap sync android
